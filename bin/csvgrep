@@ -7,8 +7,7 @@ use Text::CSV_XS;
 use Text::Table::Tiny qw/ generate_table /;
 use Getopt::Long;
 
-my $usage_string     = "usage: $0 <pattern> <file>\n"
-                      ."       $0 -d <dir> <pattern>\n";
+my $usage_string     = "usage: $0 [-h] [-d <dir>] [-i] <pattern> <file>\n";
 my $case_insensitive = 0;
 my $column_spec;
 
@@ -57,13 +56,16 @@ sub show_matching_rows
 sub process_command_line
 {
     my $dirpath;
-
+    my $help = 0;
+    
     GetOptions(
         'ignore-case|i'     => \$case_insensitive,
+        'help|h'            => \$help,
         'columns|c=s'       => \$column_spec,
         'directory|d=s'     => \$dirpath,
     ) || die $usage_string;
 
+    die $usage_string if ($help);
     die $usage_string unless @ARGV == 2
                           || $dirpath;
 

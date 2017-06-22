@@ -4,6 +4,7 @@ Revision history for Perl script csvgrep
     - Now display the number of matching records, and total # lines.
       PR#5 from Scott Baker++.
     - Scott Baker fixed the shebang line. PR#3.
+    - Added support for tab separator. Requested by Scott Baker in #2.
 
 0.03 2017-06-22 NEILB
     - Fixed error in doc

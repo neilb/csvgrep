@@ -1,5 +1,10 @@
 Revision history for Perl script csvgrep
 
+0.04 2017-06-22 NEILB
+    - Now display the number of matching records, and total # lines.
+      PR#5 from Scott Baker++.
+    - Scott Baker fixed the shebang line. PR#3.
+
 0.03 2017-06-22 NEILB
     - Fixed error in doc
     - Added bit to doc on how I define aliases for this

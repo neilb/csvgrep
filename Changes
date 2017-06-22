@@ -1,5 +1,9 @@
 Revision history for Perl script csvgrep
 
+0.05 2017-06-22 NEILB
+    - The count of lines had an off-by-one error, as it was including
+      the header line. Thanks to Scott Baker for catching this.
+
 0.04 2017-06-22 NEILB
     - Now display the number of matching records, and total # lines.
       PR#5 from Scott Baker++. I changed to only display the count if

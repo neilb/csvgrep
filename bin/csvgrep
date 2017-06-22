@@ -58,9 +58,9 @@ sub show_matching_rows
 
     print generate_table(rows => \@rows, header_row => 1), "\n";
 
-    my $displayed_rows = int(@rows);
+    my $displayed_rows = int(@rows) - 1;
     if ($displayed_rows > $SHOW_COUNT_THRESHOLD) {
-        print "$displayed_rows records matched\n";
+        print "matched $displayed_rows of $total_rows lines\n";
     }
 }
 

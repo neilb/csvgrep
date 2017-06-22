@@ -126,12 +126,13 @@ As with regular grep, you can use the B<-i> switch to make it
 case-insensitive:
 
  % csvgrep -i wood books.csv
- +---------------------+-----------------+-------+------+
- | Book                | Author          | Pages | Date |
- +---------------------+-----------------+-------+------+
- | Norwegian Wood      | Haruki Murakami | 400   | 1987 |
- | A Walk in the Woods | Bill Bryson     | 276   | 1997 |
- +---------------------+-----------------+-------+------+
+ +-----------------------+-----------------+-------+------+
+ | Book                  | Author          | Pages | Date |
+ +-----------------------+-----------------+-------+------+
+ | Norwegian Wood        | Haruki Murakami | 400   | 1987 |
+ | A Walk in the Woods   | Bill Bryson     | 276   | 1997 |
+ | Death Walks the Woods | Cyril Hare      | 222   | 1954 |
+ +-----------------------+-----------------+-------+------+
 
 You can specify a subset of the columns to display with the B<-c> option,
 which takes a comma-separated list of column numbers:
@@ -162,7 +163,16 @@ only considering files with a .csv extension:
 
  % csvgrep -d /usr/local/feeds/users -i smith
 
-This is a script I've used internally, with features being added as I wanted them.
+I have various aliases defined, like this:
+
+ alias tg="csvgrep -d .../file.csv -c 0,1,2 -i"
+
+So then I can just run:
+
+ tg smith
+
+This is a script I've used internally,
+with features being added as I wanted them.
 Let me know if you've ideas for additional features, or send me a pull request.
 
 =head1 REPOSITORY

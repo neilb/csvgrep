@@ -1,4 +1,4 @@
-#!/bin/env perl
+#!/usr/bin/env perl
 use 5.010;
 use strict;
 use warnings;
@@ -22,6 +22,7 @@ sub show_matching_rows
     my ($pattern, $filename) = @_;
     my @col_indices;
     my @rows;
+    my $total_rows = 0;
 
     open(my $fh, '<:encoding(utf8)', $filename)
         || die "can't read $filename: $!\n";
@@ -37,6 +38,7 @@ sub show_matching_rows
     push(@rows, \@headers);
 
     while (<$fh>) {
+        $total_rows++;
         next unless ($case_insensitive && /$pattern/io)
                  || (!$case_insensitive && /$pattern/o);
         my $status = $parser->parse($_);
@@ -47,9 +49,12 @@ sub show_matching_rows
         push(@rows, [@columns]);
     }
 
-    die "no match\n" unless @rows > 1;
+    die "No match found in $total_rows records\n" unless @rows > 1;
 
     print generate_table(rows => \@rows, header_row => 1), "\n";
+
+    my $displayed_rows = scalar(@rows);
+    print "$displayed_rows records matched\n";
 }
 
 

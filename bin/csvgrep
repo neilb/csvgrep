@@ -54,13 +54,16 @@ sub show_matching_rows
         push(@rows, [@columns]);
     }
 
+	# We have to add one to account for the header line
+	$total_rows++;
+
     die "No match found in $total_rows records\n" unless @rows > 1;
 
     print generate_table(rows => \@rows, header_row => 1), "\n";
 
     my $displayed_rows = int(@rows);
     if ($displayed_rows > $SHOW_COUNT_THRESHOLD) {
-        print "$displayed_rows records matched\n";
+        print "$displayed_rows of $total_rows records matched\n";
     }
 }
 

@@ -2,7 +2,8 @@ Revision history for Perl script csvgrep
 
 0.04 2017-06-22 NEILB
     - Now display the number of matching records, and total # lines.
-      PR#5 from Scott Baker++.
+      PR#5 from Scott Baker++. I changed to only display the count if
+      more than 7 lines matched.
     - Scott Baker fixed the shebang line. PR#3.
     - Added support for tab separator. Requested by Scott Baker in #2.
 

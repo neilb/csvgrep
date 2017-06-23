@@ -34,10 +34,32 @@ sub show_matching_rows
 
     my $parser  = Text::CSV_XS->new({ sep_char => $sep_char });
     my @headers = @{ $parser->getline($fh) };
+    my @filtered_headers;
 
     if ($column_spec) {
+        my $header_map;
+        for (my $i = 0; $i < @headers; $i++) {
+            $header_map->{$headers[$i]} = $i;
+        }
+
         @col_indices = split(/,/, $column_spec);
-        @headers    = @headers[@col_indices];
+
+        foreach my $i (@col_indices) {
+            # If the index is a number we put it in raw
+            # If the index is a string we look up the integer index in the map
+            if ($i =~ /\d+/) {
+                push(@filtered_headers,$i);
+            } else {
+                my $index = $header_map->{$i};
+                if (defined($index)) {
+                    push(@filtered_headers,$index);
+                } else {
+                    print "Warning: header \"$i\" not found\n";
+                }
+            }
+        }
+
+        @headers = @headers[@filtered_headers];
     }
 
     push(@rows, \@headers);
@@ -49,7 +71,7 @@ sub show_matching_rows
         my $status = $parser->parse($_);
         my @columns = $parser->fields;
         if ($column_spec) {
-            @columns = @columns[@col_indices];
+            @columns = @columns[@filtered_headers];
         }
         push(@rows, [@columns]);
     }
@@ -69,7 +91,7 @@ sub process_command_line
 {
     my $dirpath;
     my $help = 0;
-    
+
     GetOptions(
         'ignore-case|i'     => \$case_insensitive,
         'help|h'            => \$help,

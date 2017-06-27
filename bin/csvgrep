@@ -6,6 +6,7 @@ use warnings;
 use Text::CSV_XS;
 use Text::Table::Tiny qw/ generate_table /;
 use Getopt::Long;
+use List::Util qw/ any /;
 
 my $SHOW_COUNT_THRESHOLD = 7;
 my $usage_string         = "usage: $0 [-h] [-d <dir>] [-i] <pattern> <file>\n";
@@ -32,7 +33,7 @@ sub show_matching_rows
     open(my $fh, '<:encoding(utf8)', $filename)
         || die "can't read $filename: $!\n";
 
-    my $parser  = Text::CSV_XS->new({ sep_char => $sep_char });
+    my $parser  = Text::CSV_XS->new({ binary => 1, sep_char => $sep_char });
     my @headers = @{ $parser->getline($fh) };
 
     if ($column_spec) {
@@ -42,12 +43,12 @@ sub show_matching_rows
 
     push(@rows, \@headers);
 
-    while (<$fh>) {
+    while (my $fields = $parser->getline ($fh)) {
         $total_rows++;
-        next unless ($case_insensitive && /$pattern/io)
-                 || (!$case_insensitive && /$pattern/o);
-        my $status = $parser->parse($_);
-        my @columns = $parser->fields;
+        next unless ($case_insensitive && any { /$pattern/io } @$fields )
+                 || (!$case_insensitive && any { /$pattern/o } @$fields );
+        # Replace embedded newlines with a space.
+        my @columns = map { (my $field = $_) =~ s/\R/ /; $field } @$fields;
         if ($column_spec) {
             @columns = @columns[@col_indices];
         }
@@ -203,6 +204,10 @@ we'll set the field separator to be a tab character:
  +----------------+-----------------+-------+------+
 
 This also applies to the B<-d> option.
+
+=head2 Embedded Newlines
+
+Embedded newlines are displayed as a space.
 
 =head1 REPOSITORY
 

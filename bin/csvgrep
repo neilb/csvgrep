@@ -8,58 +8,64 @@ use Text::Table::Tiny qw/ generate_table /;
 use Getopt::Long;
 
 my $SHOW_COUNT_THRESHOLD = 7;
-my $usage_string         = "usage: $0 [-h] [-d <dir>] [-i] <pattern> <file>\n";
+my $usage_string         = "usage: $0 [-h] [-d <dir>] [-i] <pattern> <files>\n";
 my $case_insensitive     = 0;
 my $match_column         = 0;
 my $column_spec;
 
 
-my ($pattern, $filename) = process_command_line();
-show_matching_rows($pattern, $filename);
+my ($pattern, @filenames) = process_command_line();
+show_matching_rows($pattern, @filenames);
 exit 0;
 
 
 sub show_matching_rows
 {
-    my ($pattern, $filename) = @_;
+    my ($pattern, @filenames) = @_;
     my $sep_char             = ',';
     my $total_rows           = 0;
+    my $first_file           = 1;
     my @col_indices;
     my @rows;
 
-    # TSV files have tab as separator instead of comma
-    $sep_char = "\t" if $filename =~ /\.tsv$/;
+    for my $filename (@filenames) {
+        # TSV files have tab as separator instead of comma
+        $sep_char = "\t" if $filename =~ /\.tsv$/;
 
-    open(my $fh, '<:encoding(utf8)', $filename)
-        || die "can't read $filename: $!\n";
+        open(my $fh, '<:encoding(utf8)', $filename)
+            || die "can't read $filename: $!\n";
 
-    my $parser  = Text::CSV_XS->new({ sep_char => $sep_char });
-    my @headers = @{ $parser->getline($fh) };
-
-    if ($column_spec) {
-        @col_indices = split(/,/, $column_spec);
-        @headers    = @headers[@col_indices];
-    }
-
-    push(@rows, \@headers);
-
-    while (<$fh>) {
-        $total_rows++;
-        next unless $match_column
-                 || ($case_insensitive && /$pattern/io)
-                 || (!$case_insensitive && /$pattern/o);
-        my $status = $parser->parse($_);
-        my @columns = $parser->fields;
-
-        next if $match_column
-             && (   ($case_insensitive  && $columns[$match_column] !~ /$pattern/io)
-                 || (!$case_insensitive && $columns[$match_column] !~ /$pattern/o)
-                );
+        my $parser  = Text::CSV_XS->new({ sep_char => $sep_char });
+        my @headers = @{ $parser->getline($fh) };
 
         if ($column_spec) {
-            @columns = @columns[@col_indices];
+            @col_indices = split(/,/, $column_spec);
+            @headers    = @headers[@col_indices];
         }
-        push(@rows, [@columns]);
+
+        if ($first_file) {
+            push(@rows, \@headers);
+            $first_file = 0;
+        }
+
+        while (<$fh>) {
+            $total_rows++;
+            next unless $match_column
+                    || ($case_insensitive && /$pattern/io)
+                    || (!$case_insensitive && /$pattern/o);
+            my $status = $parser->parse($_);
+            my @columns = $parser->fields;
+
+            next if $match_column
+                && (   ($case_insensitive  && $columns[$match_column] !~ /$pattern/io)
+                    || (!$case_insensitive && $columns[$match_column] !~ /$pattern/o)
+                    );
+
+            if ($column_spec) {
+                @columns = @columns[@col_indices];
+            }
+            push(@rows, [@columns]);
+        }
     }
 
     die "No match found in $total_rows records\n" unless @rows > 1;
@@ -77,7 +83,7 @@ sub process_command_line
 {
     my $dirpath;
     my $help = 0;
-    
+
     GetOptions(
         'ignore-case|i'     => \$case_insensitive,
         'help|h'            => \$help,
@@ -87,16 +93,16 @@ sub process_command_line
     ) || die $usage_string;
 
     die $usage_string if ($help);
-    die $usage_string unless @ARGV == 2
+    die $usage_string unless @ARGV >= 2
                           || $dirpath;
 
     my $pattern  = shift @ARGV;
 
-    my $filename = $dirpath
+    my @filenames = $dirpath
                  ? find_newest_file($dirpath)
-                 : shift @ARGV;
+                 : @ARGV;
 
-    return ($pattern, $filename);
+    return ($pattern, @filenames);
 }
 
 sub find_newest_file
@@ -126,18 +132,29 @@ csvgrep - search for patterns in a CSV and display results in a table
 
 =head1 SYNOPSIS
 
- csvgrep <pattern> <file>
+ csvgrep <pattern> <files>
  csvgrep -d <directory> <pattern>
 
 =head1 DESCRIPTION
 
-B<csvgrep> is a script that lets you look for a pattern in a CSV file,
+B<csvgrep> is a script that lets you look for a pattern in CSV files,
 and then displays the results in a text table.
-We assume that the first line in the CSV is a header row.
+We assume that the first line in each CSV is a header row.
 
 The simplest usage is to look for a word in a CSV:
 
  % csvgrep Murakami books.csv
+ +-------------------+-----------------+-------+------+
+ | Book              | Author          | Pages | Date |
+ +-------------------+-----------------+-------+------+
+ | Norwegian Wood    | Haruki Murakami | 400   | 1987 |
+ | Men without Women | Haruki Murakami | 228   | 2017 |
+ +-------------------+-----------------+-------+------+
+
+If given multiple files, it will look for the pattern in each of them
+in turn and join the results:
+
+ % csvgrep Murakami before_2000.csv after_2000.csv
  +-------------------+-----------------+-------+------+
  | Book              | Author          | Pages | Date |
  +-------------------+-----------------+-------+------+

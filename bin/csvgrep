@@ -11,6 +11,7 @@ my $SHOW_COUNT_THRESHOLD = 7;
 my $usage_string         = "usage: $0 [-h] [-d <dir>] [-i] <pattern> <files>\n";
 my $case_insensitive     = 0;
 my $match_column         = 0;
+my $print_table          = 1;
 my $column_spec;
 
 
@@ -44,7 +45,13 @@ sub show_matching_rows
         }
 
         if ($first_file) {
-            push(@rows, \@headers);
+            if ($print_table) {
+                push(@rows, \@headers);
+            }
+            else {
+                $parser->say( *STDOUT, \@headers )
+                    or warn $parser->error_diag;
+            }
             $first_file = 0;
         }
 
@@ -64,17 +71,25 @@ sub show_matching_rows
             if ($column_spec) {
                 @columns = @columns[@col_indices];
             }
-            push(@rows, [@columns]);
+
+            if ($print_table) {
+                push(@rows, [@columns]);
+            }
+            else {
+                $parser->say( *STDOUT, [@columns]) or warn $parser->error_diag;
+            }
         }
     }
 
-    die "No match found in $total_rows records\n" unless @rows > 1;
+    if ($print_table) {
+        die "No match found in $total_rows records\n" unless @rows > 1;
 
-    print generate_table(rows => \@rows, header_row => 1), "\n";
+        print generate_table(rows => \@rows, header_row => 1), "\n";
 
-    my $displayed_rows = int(@rows) - 1;
-    if ($displayed_rows > $SHOW_COUNT_THRESHOLD) {
-        print "matched $displayed_rows of $total_rows lines\n";
+        my $displayed_rows = int(@rows) - 1;
+        if ($displayed_rows > $SHOW_COUNT_THRESHOLD) {
+            print "matched $displayed_rows of $total_rows lines\n";
+        }
     }
 }
 
@@ -90,6 +105,7 @@ sub process_command_line
         'columns|c=s'       => \$column_spec,
         'directory|d=s'     => \$dirpath,
         'match-column|mc=i' => \$match_column,
+        'table!'            => \$print_table,
     ) || die $usage_string;
 
     die $usage_string if ($help);
@@ -184,6 +200,16 @@ which takes a comma-separated list of column numbers:
  | Mary Poppins | PL Travers   | 1934 |
  | Frankenstein | Mary Shelley | 1818 |
  +--------------+--------------+------+
+
+Optionally, if you are looking for a behaviour more like grep's,
+or if you'll have a result set that is too large to hold in memory,
+you can use the C<--no-table> option to print results as they are
+found. Note that this can still be combined with the other options:
+
+ % csvgrep --no-table -c 0,3 Murakami books.csv
+ "Book","Date"
+ "Norwegian Wood",1987
+ "Men without Women",2017
 
 By default the pattern will be matched against the whole line,
 but you can use B<--match-column> or B<-mc> to specify that the pattern

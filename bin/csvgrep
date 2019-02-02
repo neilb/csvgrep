@@ -47,8 +47,8 @@ sub show_matching_rows
         $total_rows++;
         next unless ($case_insensitive && any { /$pattern/io } @$fields )
                  || (!$case_insensitive && any { /$pattern/o } @$fields );
-        # Replace embedded newlines with a space.
-        my @columns = map { (my $field = $_) =~ s/\R/ /; $field } @$fields;
+        # Replace embedded newlines with a literal '\n'.
+        my @columns = map { (my $field = $_) =~ s/\R/\n/; $field } @$fields;
         if ($column_spec) {
             @columns = @columns[@col_indices];
         }
@@ -207,7 +207,7 @@ This also applies to the B<-d> option.
 
 =head2 Embedded Newlines
 
-Embedded newlines are displayed as a space.
+Embedded newlines are displayed as a literal '\n'.
 
 =head1 REPOSITORY
 

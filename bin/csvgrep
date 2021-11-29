@@ -7,7 +7,7 @@ use Text::CSV_XS;
 use Text::Table::Tiny qw/ generate_table /;
 use Getopt::Long;
 
-binmode(STDOUT, ":utf8");
+binmode(STDOUT, ":encoding(UTF-8)");
 
 my $SHOW_COUNT_THRESHOLD = 7;
 my $usage_string         = "usage: $0 [-h] [-d <dir>] [-i] <pattern> <file>\n";

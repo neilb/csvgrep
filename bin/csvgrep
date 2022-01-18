@@ -79,7 +79,7 @@ sub process_command_line
 {
     my $dirpath;
     my $help = 0;
-    
+
     GetOptions(
         'ignore-case|i'     => \$case_insensitive,
         'help|h'            => \$help,

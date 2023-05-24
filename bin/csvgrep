@@ -12,7 +12,7 @@ binmode(STDOUT, ":encoding(UTF-8)");
 my $SHOW_COUNT_THRESHOLD = 7;
 my $usage_string         = "usage: $0 [-h] [-d <dir>] [-i] <pattern> <file>\n";
 my $case_insensitive     = 0;
-my $match_column         = 0;
+my $match_column         = "";
 my $column_spec;
 
 
@@ -47,13 +47,13 @@ sub show_matching_rows
 
     while (<$fh>) {
         $total_rows++;
-        next unless $match_column
+        next unless $match_column =~ (/^\d+$/)
                  || ($case_insensitive && /$pattern/io)
                  || (!$case_insensitive && /$pattern/o);
         my $status = $parser->parse($_);
         my @columns = $parser->fields;
 
-        next if $match_column
+        next if $match_column =~ (/^\d+$/)
              && (   ($case_insensitive  && $columns[$match_column] !~ /$pattern/io)
                  || (!$case_insensitive && $columns[$match_column] !~ /$pattern/o)
                 );

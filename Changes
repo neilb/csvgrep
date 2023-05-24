@@ -1,6 +1,9 @@
 Revision history for Perl script csvgrep
 
-0.09 2022-01-18 NEILB
+0.10 ?? NEILB
+    - Added section to doc with summary of command-line options
+
+0.09 2023-05-24 NEILB
     - Add strict and warnings pragmas to test file.
     - Remove trailing whitespace in source files.
     - Basic set of tests added by Paul Cochrane++.

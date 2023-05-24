@@ -230,6 +230,36 @@ we'll set the field separator to be a tab character:
 
 This also applies to the B<-d> option.
 
+=head1 OPTIONS
+
+=over 4
+
+=item -c E<lt>column-specE<gt>
+
+A comma-separated list of the columns you want displayed,
+with the first column being 0.
+
+=item -d E<lt>directory-pathE<gt>
+
+Search the most recently modified C<.csv> or C<.tsv> file in
+the specified directory,
+and grep thar.
+
+=item -h
+
+Display short help message.
+
+=item -i
+
+Case-insensitive grep.
+
+=item -mc E<lt>column-numberE<gt>
+
+Only search the specified column,
+with 0 for the first column.
+
+=back
+
 =head1 REPOSITORY
 
 L<https://github.com/neilb/csvgrep>

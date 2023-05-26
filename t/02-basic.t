@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use File::Temp;
 use FindBin qw($RealBin);
@@ -57,6 +57,20 @@ EOD
 EOD
 
     is($stdout, $expected_output, "Display a subset of columns");
+}
+
+{
+    my $stdout = do_csvgrep("-c book,date -i mary");
+    my $expected_output =<<'EOD';
++--------------+------+
+| Book         | Date |
++--------------+------+
+| Mary Poppins | 1934 |
+| Frankenstein | 1818 |
++--------------+------+
+EOD
+
+    is($stdout, $expected_output, "Display a subset of columns by label");
 }
 
 SKIP: {

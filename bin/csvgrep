@@ -37,11 +37,22 @@ sub show_matching_rows
     open(my $fh, '<:encoding(utf8)', $filename)
         || die "can't read $filename: $!\n";
 
-    my $parser  = Text::CSV_XS->new({ sep_char => $sep_char });
-    my @headers = @{ $parser->getline($fh) };
+    my $parser     = Text::CSV_XS->new({ sep_char => $sep_char });
+    my @headers    = @{ $parser->getline($fh) };
+    my %header_map = map { (lc($headers[$_]), $_) } 0 .. int(@headers) - 1;
 
     if ($column_spec) {
-        @col_indices = split(/,/, $column_spec);
+        foreach my $index (split(/,/, $column_spec)) {
+            if ($index =~ /^[0-9]+$/) {
+                push(@col_indices, $index);
+            }
+            elsif (exists $header_map{ lc($index) }) {
+                push(@col_indices, $header_map{ lc($index) });
+            }
+            else {
+                die "Error: header \"$index\" not found\n";
+            }
+        }
         @headers    = @headers[@col_indices];
     }
 
@@ -171,6 +182,16 @@ which takes a comma-separated list of column numbers:
  | Mary Poppins | PL Travers   | 1934 |
  | Frankenstein | Mary Shelley | 1818 |
  +--------------+--------------+------+
+
+You can also use the title of columns with the B<-c> option:
+
+ % csvgrep -c book,date -i mary books.csv
+ +--------------+------+
+ | Book         | Date |
+ +--------------+------+
+ | Mary Poppins | 1934 |
+ | Frankenstein | 1818 |
+ +--------------+------+
 
 By default the pattern will be matched against the whole line,
 but you can use B<--match-column> or B<-mc> to specify that the pattern

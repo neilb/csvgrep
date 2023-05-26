@@ -2,6 +2,7 @@ Revision history for Perl script csvgrep
 
 0.10 ?? NEILB
     - Added section to doc with summary of command-line options
+    - Tests now use $^X instead of "perl". RT#148424 from ANDK++.
 
 0.09 2023-05-24 NEILB
     - Add strict and warnings pragmas to test file.

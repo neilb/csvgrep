@@ -5,12 +5,14 @@ use warnings;
 
 use Text::CSV_XS;
 use Text::Table::Tiny qw/ generate_table /;
+use File::Basename    qw/ basename /;
 use Getopt::Long;
 
 binmode(STDOUT, ":encoding(UTF-8)");
 
+my $PROGRAM              = basename($0);
 my $SHOW_COUNT_THRESHOLD = 7;
-my $usage_string         = "usage: $0 [-h] [-d <dir>] [-i] <pattern> <file>\n";
+my $usage_string         = "usage: $PROGRAM [-h] [-c <cols>] [-d <dir>] [-i] [-mc <col>] <pattern> <file>\n";
 my $case_insensitive     = 0;
 my $match_column         = "";
 my $column_spec;

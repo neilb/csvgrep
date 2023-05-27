@@ -14,6 +14,7 @@ my $PROGRAM              = basename($0);
 my $SHOW_COUNT_THRESHOLD = 7;
 my $usage_string         = "usage: $PROGRAM [-h] [-c <cols>] [-d <dir>] [-i] [-mc <col>] <pattern> <file>\n";
 my $case_insensitive     = 0;
+my $use_tab_separator;
 my $match_column;
 my $column_spec;
 
@@ -30,12 +31,18 @@ sub show_matching_rows
     my $total_rows           = 0;
     my @col_indices;
     my @rows;
+    my $fh;
 
     # TSV files have tab as separator instead of comma
-    $sep_char = "\t" if $filename =~ /\.tsv$/;
+    $sep_char = "\t" if $filename =~ /\.tsv$/ || $use_tab_separator;
 
-    open(my $fh, '<:encoding(utf8)', $filename)
-        || die "can't read $filename: $!\n";
+    if ($filename eq '-') {
+        $fh = \*STDIN;
+    }
+    else {
+        open($fh, '<:encoding(utf8)', $filename)
+            || die "can't read $filename: $!\n";
+    }
 
     my $parser     = Text::CSV_XS->new({ sep_char => $sep_char });
     my @headers    = @{ $parser->getline($fh) };
@@ -112,6 +119,7 @@ sub process_command_line
         'columns|c=s'       => \$column_spec,
         'directory|d=s'     => \$dirpath,
         'match-column|mc=s' => \$match_column,
+        'tab|t'             => \$use_tab_separator,
     ) || die $usage_string;
 
     die $usage_string if ($help);
@@ -305,6 +313,11 @@ Case-insensitive grep.
 Only search the specified column,
 which can be specified with the column's name or index
 (starting at 0).
+
+=item -t
+
+Use TAB as the field separator.
+This will be picked automatically for files with a C<.tsv> extension.
 
 =back
 

@@ -2,6 +2,7 @@ Revision history for Perl script csvgrep
 
 0.11 2023-05-27 NEILB
     - Clarified description of -d option, saying it will also look for .tsv
+    - You can now use column name with the -mc option as well
 
 0.10 2023-05-26 NEILB
     - Added section to doc with summary of command-line options

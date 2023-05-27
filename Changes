@@ -1,5 +1,8 @@
 Revision history for Perl script csvgrep
 
+0.11 2023-05-27 NEILB
+    - Clarified description of -d option, saying it will also look for .tsv
+
 0.10 2023-05-26 NEILB
     - Added section to doc with summary of command-line options
     - Tests now use $^X instead of "perl". RT#148424 from ANDK++.

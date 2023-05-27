@@ -219,10 +219,12 @@ but you'll probably need to quote it from your shell:
  | Death Walks the Woods | Cyril Hare  | 222   | 1954 |
  +-----------------------+-------------+-------+------+
 
-At work we have a number of situations where we have a directory that contains multiple versions
+At work we have a number of situations where
+we have a directory that contains multiple versions
 of a particular CSV file, for example with a feed from a customer.
-With the B<-d> option, csvgrep will look at the most recent file in the specified directory,
-only considering files with a .csv extension:
+With the B<-d> option,
+csvgrep will look at the most recent file in the specified directory,
+only considering files with a C<.csv> or C<.tsv> extension:
 
  % csvgrep -d /usr/local/feeds/users -i smith
 
